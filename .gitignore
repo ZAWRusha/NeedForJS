@@ -1,0 +1,15 @@
+# OS cach preview file & another service files
+Thumbs.db
+gulpfile.js
+package.json
+package-lock.json
+# path/to/anywhere/Thumbs.db
+
+# node dir
+node_modules/
+# folder "node_modules" anythere in project, not file "node_modules"
+
+# Logs
+*.log
+# anywhere/*.log
+
