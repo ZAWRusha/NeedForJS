@@ -1,3 +1,5 @@
+'use strict'
+
 const score = document.querySelector('.score'),
 	start = document.querySelector('.start'),
 	gameArea = document.querySelector('.gameArea'),
@@ -19,19 +21,63 @@ const keys = {
 const setting = {
 	start: false,
 	score: 0,
-	speed: 3
+	speed: 3,
+	traffic: 3
 }
+
+function getQuantityElements(heightElement) { //функция вычисляет, сколько объектов определенной высоты войдет на экран.
+	return document.documentElement.clientHeight / heightElement + 1 //document.documentElement.clientHeight - Вычисляем высоту страницы
+}
+console.log(getQuantityElements(100));
 
 function startGame() {
 	start.classList.add('hide')
+
+	for (let i = 0; i < getQuantityElements(100); i++) {
+		const line = document.createElement('div')
+		line.classList.add('line')
+		line.style.top = (i * 100) + 'px'
+		line.y = i * 100
+		gameArea.appendChild(line)
+	}
+
+	for (let i = 0; i < getQuantityElements(157 * setting.traffic); i++) {
+		const enemy = document.createElement('div')
+		enemy.classList.add('enemy')
+		enemy.y = -157 * setting.traffic * (i + 1)
+		enemy.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 52.5)) + 'px'
+		enemy.style.top = enemy.y + 'px'
+		// enemy.style.background = 'transparent url("../img/enemy.png") center / cover no-repeat'
+		gameArea.appendChild(enemy)
+	}
+
 	setting.start = true
 	gameArea.appendChild(car)
+	setting.x = car.offsetLeft //offsetLeft - начальное значение автомобиля - берется из стиля css, класса .car
+	setting.y = car.offsetTop //offsetTop - начальное значение автомобиля - берется из стиля css, класса .car
 	requestAnimationFrame(playGame)
 }
 
 function playGame() {
-	console.log('play Game')
 	if (setting.start) {
+		moveRoad()
+		moveEnemy()
+
+		if (keys.ArrowLeft && setting.x > 0) {
+			setting.x -= setting.speed
+		}
+		if (keys.ArrowRight && setting.x < gameArea.offsetWidth - car.offsetWidth) {
+			setting.x += setting.speed
+		}
+		if (keys.ArrowUp && setting.y > 0) {
+			setting.y -= setting.speed
+		}
+		if (keys.ArrowDown && setting.y < gameArea.offsetHeight - car.offsetHeight) {
+			setting.y += setting.speed
+		}
+
+		car.style.left = setting.x + 'px'
+		car.style.top = setting.y + 'px'
 		requestAnimationFrame(playGame) // Recursion - the function starts itself
 	}
 }
@@ -44,4 +90,29 @@ function startRun(event) {
 function stopRun(event) {
 	event.preventDefault()
 	keys[event.key] = false
+}
+
+function moveRoad() {
+	let lines = document.querySelectorAll('.line')
+	lines.forEach(function(line) {
+		line.y += setting.speed
+		line.style.top = line.y + 'px'
+
+		if (line.y >= document.documentElement.clientHeight) { // document.documentElement.clientHeight - Получаем высоту страницы
+			line.y = -100
+		}
+	})
+}
+
+function moveEnemy() {
+	let enemy = document.querySelectorAll('.enemy')
+	enemy.forEach(function(item) {
+		item.y += setting.speed / 1.5
+		item.style.top = item.y + 'px'
+
+		if (item.y >= document.documentElement.clientHeight) { // document.documentElement.clientHeight - Получаем высоту страницы
+			item.y = -157 * setting.traffic
+			item.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 52.5)) + 'px'
+		}
+	})
 }
